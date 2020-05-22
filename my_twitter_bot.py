@@ -1,18 +1,27 @@
 import tweepy
 import time
-# NOTE: I put my keys in the keys.py to separate them
-# from this main file.
-# Please refer to keys_format.py to see the format.
-from keys import *
 
-# NOTE: flush=True is just for running this script
-# with PythonAnywhere's always-on task.
-# More info: https://help.pythonanywhere.com/pages/AlwaysOnTasks/
-print('this is my twitter bot', flush=True)
+print ("this is my twitter bot")
+
+CONSUMER_KEY = 'AAA'
+CONSUMER_SECRET = 'ZZZZ'
+ACCESS_KEY = 'YYY'
+ACCESS_SECRET = 'WWW'
 
 auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 api = tweepy.API(auth)
+
+mentions = api.mentions_timeline()
+
+for mention in mentions:
+	print(str(mention.id) + ' - ' + mention.text)
+	if 'minorities' in mention.text.lower():
+		print ('Remember also that the smallest minority on earth is the individual. Those who deny individual rights, cannot claim to be defenders of minorities.')
+
+
+#part 2 -----------------------
+
 
 FILE_NAME = 'last_seen_id.txt'
 
@@ -30,23 +39,21 @@ def store_last_seen_id(last_seen_id, file_name):
 
 def reply_to_tweets():
     print('retrieving and replying to tweets...', flush=True)
-    # DEV NOTE: use 1060651988453654528 for testing.
+
     last_seen_id = retrieve_last_seen_id(FILE_NAME)
-    # NOTE: We need to use tweet_mode='extended' below to show
-    # all full tweets (with full_text). Without it, long tweets
-    # would be cut off.
+
     mentions = api.mentions_timeline(
                         last_seen_id,
                         tweet_mode='extended')
     for mention in reversed(mentions):
-        print(str(mention.id) + ' - ' + mention.full_text, flush=True)
+        print (str(mention.id) + ' - ' + mention.full_text, flush=True)
         last_seen_id = mention.id
         store_last_seen_id(last_seen_id, FILE_NAME)
-        if '#helloworld' in mention.full_text.lower():
-            print('found #helloworld!', flush=True)
-            print('responding back...', flush=True)
-            api.update_status('@' + mention.user.screen_name +
-                    '#HelloWorld back to you!', mention.id)
+        if 'minorities' in mention.full_text.lower():
+            print( ' Remember also that the smallest minority on earth is the individual. Those who deny individual rights, cannot claim to be defenders of minorities ', flush=True)
+
+            api.update_status('@' +  mention.user.screen_name +
+                    ' Remember also that the smallest minority on earth is the individual. Those who deny individual rights, cannot claim to be defenders of minorities ' , mention.id  )
 
 while True:
     reply_to_tweets()
